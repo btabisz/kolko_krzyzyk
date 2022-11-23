@@ -1,12 +1,13 @@
 
-tabela_planszy = []
-czlowiek = "x"
-komputer = "o"
+board_list = []
+player = "x"
+computer = "o"
 
-def plansza_przyklad():
+
+def sample_board():
     print(""" 
-        człowiek - x
-        komputer - o
+        player - x
+        computer - o
                 0  |  1  |  2
                 -------------- 
                 3  |  4  |  5
@@ -15,113 +16,118 @@ def plansza_przyklad():
         """)
 
 
-def nowa_plansza():
+def new_board():
     for i in range(0,9):
-        tabela_planszy.append(" ")
+        board_list.append(" ")
 
 
-def plansza_gra(tabela_planszy):
-    print(f'  {tabela_planszy[0]} | {tabela_planszy[1]} | {tabela_planszy[2]}')
+def game_board(board_list):
+    print(f'  {board_list[0]} | {board_list[1]} | {board_list[2]}')
     print(f'  ----------')
-    print(f'  {tabela_planszy[3]} | {tabela_planszy[4]} | {tabela_planszy[5]}')
+    print(f'  {board_list[3]} | {board_list[4]} | {board_list[5]}')
     print(f'  ----------')
-    print(f'  {tabela_planszy[6]} | {tabela_planszy[7]} | {tabela_planszy[8]}')
+    print(f'  {board_list[6]} | {board_list[7]} | {board_list[8]}')
     print(f'================\n')
 
 
-def kto_zaczyna():
+def who_start():
     response = None
-    while response not in ("t", "n"):
-        response = input("Chcesz zaczynać? t/n")
-    if response == "t":
-        return czlowiek
+    while response not in ("y", "n"):
+        response = input("Do you want to start? y/n")
+    if response == "y":
+        return player
     else:
-        return komputer
+        return computer
 
 
-def prawidlowe_ruchy(tabela_planszy):
-    tabela_prawidlowe_ruchy = []
+def correct_plays(board_list):
+    correct_plays_list = []
     for i in range(0,9):
-        if tabela_planszy[i] == " ":
-            tabela_prawidlowe_ruchy.append(i)
-    return tabela_prawidlowe_ruchy
+        if board_list[i] == " ":
+            correct_plays_list.append(i)
+    return correct_plays_list
 
-def wygrany(tabela_planszy):
-    tupla_wygranych = ((0, 1, 2),
-                       (3, 4, 5),
-                       (6, 7, 8),
-                       (0, 3, 6),
-                       (1, 4, 7),
-                       (2, 5, 8),
-                       (0, 4, 8),
-                       (2, 4, 6))
-    for i in tupla_wygranych:
-        if tabela_planszy[i[0]] == tabela_planszy[i[1]] == tabela_planszy[i[2]] !=  " ":
-            wygrany = tabela_planszy[i[0]]
-            return wygrany
-    if " " not in tabela_planszy:
-        remis = "remis"
-        return remis
+
+def win(board_list):
+    win_tuple = ((0, 1, 2),
+                 (3, 4, 5),
+                 (6, 7, 8),
+                 (0, 3, 6),
+                 (1, 4, 7),
+                 (2, 5, 8),
+                 (0, 4, 8),
+                 (2, 4, 6))
+    for i in win_tuple:
+        if board_list[i[0]] == board_list[i[1]] == board_list[i[2]] != " ":
+            winner = board_list[i[0]]
+            return winner
+    if " " not in board_list:
+        draw = "draw"
+        return draw
     return None
-def ruch_czlowieka(tabela_planszy, czlowiek):
-    prawidlowy = prawidlowe_ruchy(tabela_planszy)
-    ruch = None
-    while ruch not in prawidlowy:
-        ruch = int(input("które pole wybierasz?"))
-        if ruch not in prawidlowy:
-            print("Pole zajęte - wybierz inne!")
-    return ruch
-
-def ruch_komputera(tabela_planszy, czlowiek, komputer):
-    tabela_planszy = tabela_planszy[:]
-    najlepsze_ruchy = (4, 0, 2, 6, 8, 1, 3, 5, 7)
-    for ruch in prawidlowe_ruchy(tabela_planszy):
-        tabela_planszy[ruch] = komputer
-        if wygrany(tabela_planszy) == komputer:
-            return ruch
-        tabela_planszy[ruch] = " "
-    for ruch in prawidlowe_ruchy(tabela_planszy):
-        tabela_planszy[ruch] = czlowiek
-        if wygrany(tabela_planszy) == czlowiek:
-            return ruch
-        tabela_planszy[ruch] = " "
-    for ruch in najlepsze_ruchy:
-        if ruch in prawidlowe_ruchy(tabela_planszy):
-            return ruch
 
 
-def nastepna_kolejka(kolejka):
-    if kolejka == czlowiek:
-        return komputer
+def player_move(board_list):
+    correct = correct_plays(board_list)
+    move = None
+    while move not in correct:
+        move = int(input("which field do you choose?"))
+        if move not in correct:
+            print("Field not available - choose another one!")
+    return move
+
+
+def computer_move(board_list, player, computer):
+    board_list = board_list[:]
+    best_moves = (4, 0, 2, 6, 8, 1, 3, 5, 7)
+    for move in correct_plays(board_list):
+        board_list[move] = computer
+        if win(board_list) == computer:
+            return move
+        board_list[move] = " "
+    for move in correct_plays(board_list):
+        board_list[move] = player
+        if win(board_list) == player:
+            return move
+        board_list[move] = " "
+    for move in best_moves:
+        if move in correct_plays(board_list):
+            return move
+
+
+def next_move(move):
+    if move == player:
+        return computer
     else:
-        return czlowiek
+        return player
 
 
-def gratulacje(zwyciezca, czlowiek, komputer):
-    if zwyciezca != "remis":
-        print(zwyciezca, 'Jest zwyciężcą!')
+def congratulations(winner, player, computer):
+    if winner != "draw":
+        print(winner, 'wins!')
     else:
-        print("Remis")
+        print("Draw!")
 
 
 def main():
-    plansza_przyklad()
-    kolejka = kto_zaczyna()
-    nowa_plansza()
-    plansza_gra(tabela_planszy)
+    sample_board()
+    turn = who_start()
+    new_board()
+    game_board(board_list)
 
-    while not wygrany(tabela_planszy):
+    while not win(board_list):
 
-        if kolejka == czlowiek:
-            ruch = ruch_czlowieka(tabela_planszy,czlowiek)
-            tabela_planszy[ruch] = czlowiek
+        if turn == player:
+            move = player_move(board_list)
+            board_list[move] = player
         else:
-            ruch = ruch_komputera(tabela_planszy, czlowiek, komputer)
-            tabela_planszy[ruch] = komputer
-        plansza_przyklad()
-        plansza_gra(tabela_planszy)
-        kolejka = nastepna_kolejka(kolejka)
-    zwyciezca = wygrany(tabela_planszy)
-    gratulacje(zwyciezca, czlowiek, komputer)
+            move = computer_move(board_list, player, computer)
+            board_list[move] = computer
+        sample_board()
+        game_board(board_list)
+        turn = next_move(turn)
+    winner = win(board_list)
+    congratulations(winner, player, computer)
 
 main()
+
